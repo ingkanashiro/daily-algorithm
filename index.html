@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Daily Algorithm</title>
+        <link rel="stylesheet" href="lib/mocha.css">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+
+    <body>
+
+        <div class="bg-wrapper">
+            <canvas id="binary-canvas"></canvas>
+            <div class="fade-overlay"></div>
+        </div>
+
+        <div id="main">
+
+            <!-- top bar -->
+            <div id="nav">
+                <!-- account -->
+                <button id="account" onclick="openAccountModal()">
+                    <img src="assets/icons/cloud_off.svg" style="height: 18px">
+                    <span id="acc-user">Action required</span>
+                    <span id="acc-status">● Offline</span>
+                </button>
+
+                <dialog id="account-modal" style="background: none; border: none;">
+                    <div class="account-card">
+
+                        <button class="close-btn" onclick="closeAccountModal()"><img src="assets/icons/close.svg"></button>
+                        <span>We use your Codeforces account to check if you've solved the daily problems.</span>
+                        <div>
+                            <span>Codeforces handle: </span><input type="text">
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="error-span">[!] Account not found</span>
+                            <button class="sync-btn" onclick="reloadCodeforces()">
+                                <img src="assets/icons/sync.svg">
+                                <span>Sync</span>
+                            </button>
+                        </div>
+                    </div>
+                </dialog>
+
+                <!-- tokens -->
+                <div id="tokens">
+                    0
+                </div>
+            </div>
+
+            <!-- problem chip -->
+            <div id="flashcard" class="card">
+                <div id="progress-bar">
+                    <div id="bar-e" class="o-inactive"></div>
+                    <div id="bar-m" class="o-yellow"></div>
+                    <div id="bar-h" class="o-inactive"></div>
+                    <div id="bar-x" class="o-inactive"></div>
+                </div>
+            </div>
+
+
+            <!-- cat at the bottom -->
+            <a class="wcenter" href="https://linktr.ee/ingkanashiro" target="_blank">
+                <img id="cat" src="assets/cat.svg">
+            </a>
+
+        </div>
+
+        <script src="./assets/bg.js"></script>
+        <script src="./index.js"></script>
+    </body>
+</html>
