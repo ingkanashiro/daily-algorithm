@@ -6,6 +6,66 @@ function getTodaySeed() {
 	return parseInt(`${year}${month}${day}`, 10);
 }
 
+function loadProblem(level, day = 0) {
+
+	// day: today=0, yesterday=-1, ..., up to -7.
+
+	/*
+		COLORS FOR TAGS:
+			rating							green
+
+			implementation					lavander
+			brute-force						maroon
+			greedy							yellow
+			constructive					lavander
+			interactive						lavander
+			
+			search							sky
+			pointers						red
+			divide-and-conquer				peach
+			meet-in-the-middle				peach
+			data-structures					yellow
+			dp (dyn-prog)					blue
+			dsu (disjoint-set-union)		blue
+			bitmasks						pink
+			
+			math							red
+			number-theory					blue
+			combinatorics					green
+			probabilities					peach
+			chinese-remainder-theorem		red
+			matrices						yellow
+			fft (fourier)					blue
+			
+			graphs							blue
+			trees							teal
+			df-similar						lavander
+			shortest-path					peach
+			flows							pink
+			graph-matchings					pink
+			2-sat							green
+			strings							green
+			hashing							yellow
+			string-suffix-structs			peach
+			sorting							blue
+
+			geometry 						green
+			games							red
+			schedules						sapphire
+			parsing							lavander
+	*/
+
+
+}
+
+
+
+
+
+
+
+// Account Badge functionality
+
 function openAccountModal(e) {
 
 	let user = localStorage.getItem('user');
@@ -82,6 +142,8 @@ function closeAccountModal() {
 	document.getElementById('account-modal').close();
 }
 
+// Tokens 
+
 function getTokens() {
 	let tokens = localStorage.getItem('tokens');
 
@@ -98,10 +160,9 @@ function getTokens() {
 	updateTokens();
 }
 
-
-
-function updateTokens(short = true) {
-	document.getElementById('token-count').innerText = parseTokenCount(localStorage.getItem('tokens'), short);
+function updateTokens() {
+	document.getElementById('token-short').innerText = parseTokenCount(localStorage.getItem('tokens'), true);
+	document.getElementById('token-long').innerText = parseTokenCount(localStorage.getItem('tokens'), false);
 }
 
 function formatNumber(val) {
@@ -122,12 +183,10 @@ function parseTokenCount(val, short) {
 
 	const suffix = ['', 'k', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
 	const msg = [
-		'lol',
 		'touch grass',
-		'overkill',
-		'natsukerayo',
-		'why?',
-		'you found me! go touch some grass man you surely cant have grinded so much'
+		'fancy a job?',
+		'the big leagues are calling',
+		'you found me! go touch some grass man, you surely can\'t have grinded so much'
 	];
 
 	let s = formatNumber(val); // '12,345,678,912,345,678'
@@ -139,7 +198,8 @@ function parseTokenCount(val, short) {
 	if (short && val.length > 5) {
 					
 		if (v < 12) {
-			str = s.split(',')[0] + '.' + ((parseInt(s.split(',')[1][1]) < 5) ? s.split(',')[1][0] : (parseInt(s.split(',')[1][0]) + 1)) + ' ' + suffix[v];
+			str = s.split(',')[0] + '.' + ((parseInt(s.split(',')[1][1]) < 5) ? s.split(',')[1][0] : (Math.min(parseInt(s.split(',')[1][0]) + 1, 9))) 
+					+ ' ' + suffix[v];
 		}
 		else {
 			str = '+999.9 Dc';
@@ -153,9 +213,19 @@ function parseTokenCount(val, short) {
 			let r = Math.floor(Math.random() * (msg.length));
 			// if (r === msg.length) { r--; }
 			// str = msg[r];
-			str = msg[Math.min(r, msg.length - 1)] // xd
+			str = msg[Math.min(r, msg.length - 1)] + ' • ' + s; // xd
 		}
 	}
+
+	if (short) {
+		const adjust = 0.5;
+		let w = (str.length * adjust) + 1.125;
+
+		document.documentElement.style.setProperty('--token-initial-width', w.toString() + 'rem');
+
+		console.log('set max-width to ', w);
+	}
+
 	return str;
 }
 
@@ -179,6 +249,9 @@ function setAccountStatus(status) {
 			<span id="acc-status">● Offline</span>
 			`;
 			
+			document.documentElement.style.setProperty('--account-badge-accent', '#7f849c');
+			document.documentElement.style.setProperty('--account-badge-accent-blur', '#7f849c22');
+
 			break;
 			
 		
@@ -191,6 +264,9 @@ function setAccountStatus(status) {
 				<span id="acc-status" style="font-weight: 700; color: var(--mocha-green);">● Online</span>
 			`;
 
+			document.documentElement.style.setProperty('--account-badge-accent', '#a6e3a1');
+			document.documentElement.style.setProperty('--account-badge-accent-blur', '#a6e3a122');
+
 			break;
 		
 		case 2: // syncing
@@ -201,6 +277,9 @@ function setAccountStatus(status) {
 				<span id="acc-user" style="font-style: italic; color: var(--mocha-peach);">${localStorage.getItem('user')}</span>
 				<span id="acc-status" style="font-weight: 700; color: var(--mocha-peach);">● Connecting</span>
 			`;
+
+			document.documentElement.style.setProperty('--account-badge-accent', '#fab387');
+			document.documentElement.style.setProperty('--account-badge-accent-blur', '#fab38722');
 
 			break;
 		
@@ -213,9 +292,10 @@ function setAccountStatus(status) {
 				<span id="acc-status" style="font-weight: 700; color: var(--mocha-red);">● Offline</span>
 			`;
 
+			document.documentElement.style.setProperty('--account-badge-accent', '#f38ba8');
+			document.documentElement.style.setProperty('--account-badge-accent-blur', '#f38ba822');
+
 			break;
-
-
 	}
 
 }
@@ -284,19 +364,3 @@ async function reloadCodeforces(force) {
 
 reloadCodeforces(true);
 getTokens();
-
-
-
-
-
-
-document.addEventListener('DOMContentLoaded', onLoad);
-
-function onLoad() {
-	document.getElementById('tokens').onmouseover = (e) => {
-		updateTokens(false);
-	}
-	document.getElementById('tokens').onmouseleave = (e) => {
-		updateTokens(true);
-	}
-}
