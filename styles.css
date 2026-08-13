@@ -1,3 +1,7 @@
+:root {
+    interpolate-size: allow-keywords;
+}
+
 body {
     background-color: var(--mocha-crust);
     color: var(--mocha-mauve);
@@ -45,7 +49,6 @@ body {
 
 .wcenter {
     display: flex;
-    width: 100%;
 
     margin-top: 2rem;
 
@@ -84,7 +87,7 @@ body {
     background-color: var(--mocha-crust);
     height: fit-content;
 
-    border: 1px solid var(--mocha-base);
+    border: 1px solid var(--mocha-overlay-1);
     border-radius: 99px;
 
     padding: 4px;
@@ -96,6 +99,12 @@ body {
 
     display: inline-flex;
     gap: 12px;
+
+    transition: transform 0.25s ease;
+}
+
+#account:hover {
+    transform: translateX(5px);
 }
 
 #account span {
@@ -115,8 +124,13 @@ body {
     text-align: right;
 
     background-color: var(--mocha-crust);
-    width: fit-content;
-    height: fit-content;
+    width: calc-size(auto, size);
+    height: 1.2rem;
+
+    overflow: hidden;
+    word-wrap: none;
+
+    flex-grow: 0;
 
     color: var(--mocha-teal);
 
@@ -129,7 +143,14 @@ body {
 
     box-shadow: 0 0 64px 16px #94e2d522;
 
-    transition: width 0.25s ease;
+    transition: all 0.5s ease;
+}
+
+#tokens:hover {
+    transform: translateX(-5px);
+    width: calc-size(auto, size);
+
+    /* flex-grow: calc-size(fit-content, size + 1rem); */
 }
 
 .close-btn {

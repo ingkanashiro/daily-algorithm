@@ -136,7 +136,7 @@ function parseTokenCount(val, short) {
 	console.log("s:", s);
 	console.log("v:", v);
 
-	if (short) {
+	if (short && val.length > 5) {
 					
 		if (v < 12) {
 			str = s.split(',')[0] + '.' + ((parseInt(s.split(',')[1][1]) < 5) ? s.split(',')[1][0] : (parseInt(s.split(',')[1][0]) + 1)) + ' ' + suffix[v];
