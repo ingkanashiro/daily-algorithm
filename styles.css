@@ -105,21 +105,29 @@ body {
 }
 
 #tokens {
+    display: inline-flex;
+    justify-content: flex-end;
+
+    gap: 4px;
+
     font-family: monospace;
     font-weight: 700;
     text-align: right;
 
     background-color: var(--mocha-crust);
+    width: fit-content;
     height: fit-content;
 
-    border: 1px solid var(--mocha-base);
+    color: var(--mocha-teal);
+
+    border: 1px solid var(--mocha-teal);
     border-radius: 99px;
 
     padding: 4px;
     padding-right: 8px;
+    padding-left: 12px;
 
-    width: 3rem;
-    box-shadow: 0 0 64px 16px #1e1e2ea2;
+    box-shadow: 0 0 64px 16px #94e2d522;
 }
 
 .close-btn {
@@ -161,6 +169,13 @@ body {
     font-weight: 600;
 
     color: var(--mocha-red);
+}
+
+.warning-span {
+    font-style: italic;
+    font-weight: 600;
+
+    color: var(--mocha-peach);
 }
 
 .account-card {
@@ -219,6 +234,31 @@ body {
     gap: 4px;
 
     background-color: var(--mocha-green);
+    border: 0;
+    border-radius: 99px;
+
+    width: fit-content;
+
+    padding: 8px;
+    padding-left: 8px;
+    padding-right: 12px;
+}
+
+.retry-btn {
+    display: inline-flex;
+
+    align-self: flex-end;
+
+    align-items: center;
+    justify-content: center;
+
+    color: var(--mocha-crust);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 700;
+
+    gap: 4px;
+
+    background-color: var(--mocha-red);
     border: 0;
     border-radius: 99px;
 

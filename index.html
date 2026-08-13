@@ -20,7 +20,7 @@
             <!-- top bar -->
             <div id="nav">
                 <!-- account -->
-                <button id="account" onclick="openAccountModal()">
+                <button id="account" onclick="openAccountModal(0)">
                     <img src="assets/icons/cloud_off.svg" style="height: 18px">
                     <span id="acc-user">Action required</span>
                     <span id="acc-status">● Offline</span>
@@ -32,11 +32,14 @@
                         <button class="close-btn" onclick="closeAccountModal()"><img src="assets/icons/close.svg"></button>
                         <span>We use your Codeforces account to check if you've solved the daily problems.</span>
                         <div>
-                            <span>Codeforces handle: </span><input type="text">
+                            <span>Codeforces handle: </span><input id="user-input" type="text">
                         </div>
                         
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span class="error-span">[!] Account not found</span>
+                        <div id="account-bottom-bar" style="display: flex; justify-content: flex-end;">
+                            <div style="display: inline-flex; align-items: center; gap: 4px; width: 100%;">
+                                <img src="assets/icons/error.svg" style="height: 16px;">
+                                <span class="error-span">Account not found</span>
+                            </div>
                             <button class="sync-btn" onclick="reloadCodeforces()">
                                 <img src="assets/icons/sync.svg">
                                 <span>Sync</span>
@@ -47,17 +50,39 @@
 
                 <!-- tokens -->
                 <div id="tokens">
-                    0
+                    <span>0</span>
+                    <img src="assets/icons/token.svg" style="height: 18px;">
                 </div>
             </div>
 
             <!-- problem chip -->
             <div id="flashcard" class="card">
+
+                <div id="day-selector">
+                    Today
+                </div>
+
                 <div id="progress-bar">
                     <div id="bar-e" class="o-inactive"></div>
                     <div id="bar-m" class="o-yellow"></div>
                     <div id="bar-h" class="o-inactive"></div>
                     <div id="bar-x" class="o-inactive"></div>
+                </div>
+
+                <div id="rating">
+
+                </div>
+
+                <div id="problem">
+
+                </div>
+                
+                <div id="limitations-and-rewards">
+
+                </div>
+                
+                <div id="actions">
+
                 </div>
             </div>
 
