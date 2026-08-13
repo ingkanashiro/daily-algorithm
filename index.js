@@ -42,7 +42,7 @@ function openAccountModal(e) {
 
 	if (e === 0) {
 		document.getElementById('account-bottom-bar').innerHTML = `
-			<button class="sync-btn" onclick="reloadCodeforces(true)">
+			<button class="sync-btn" onclick="reloadCodeforces(false)">
 				<img src="assets/icons/sync.svg">
 				<span>Sync</span>
 			</button>
@@ -54,7 +54,7 @@ function openAccountModal(e) {
 				<img src="assets/icons/error.svg" style="height: 16px;">
 				<span class="error-span">${msg}</span>
 			</div>
-			<button class="retry-btn" onclick="reloadCodeforces(true)">
+			<button class="retry-btn" onclick="reloadCodeforces(false)">
 				<img src="assets/icons/sync.svg">
 				<span>Retry</span>
 			</button>
@@ -67,7 +67,7 @@ function openAccountModal(e) {
 				<img src="assets/icons/warning.svg" style="height: 16px;">
 				<span class="warning-span">${msg}</span>
 			</div>
-				<button class="sync-btn" onclick="reloadCodeforces(true)">
+				<button class="sync-btn" onclick="reloadCodeforces(false)">
 				<img src="assets/icons/sync.svg">
 				<span>Sync</span>
 			</button>
@@ -86,7 +86,7 @@ function getTokens() {
 	let tokens = localStorage.getItem('tokens');
 
 	if (tokens === null) {
-		tokens = 0;
+		tokens = '0';
 
 		console.warn('tokens were null, set to 0');
 	}
@@ -95,6 +95,73 @@ function getTokens() {
 	}
 
 	localStorage.setItem('tokens', tokens);
+	updateTokens();
+}
+
+
+
+function updateTokens(short = true) {
+	document.getElementById('token-count').innerText = parseTokenCount(localStorage.getItem('tokens'), short);
+}
+
+function formatNumber(val) {
+	let s = val.split(''); 
+	let strf = "";
+
+	let c = 0;
+	for (let i = val.length-1; i >= 0; i--) {
+		strf = ((c % 3 === 2 && i != 0) ? ',' : '') + s[i] + strf;
+		c++;
+	}
+	return strf;
+}
+
+function parseTokenCount(val, short) {
+
+	let str = "";
+
+	const suffix = ['', 'k', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
+	const msg = [
+		'lol',
+		'touch grass',
+		'overkill',
+		'natsukerayo',
+		'why?',
+		'you found me! go touch some grass man you surely cant have grinded so much'
+	];
+
+	let s = formatNumber(val); // '12,345,678,912,345,678'
+	let v = s.split(',').length - 1;
+
+	console.log("s:", s);
+	console.log("v:", v);
+
+	if (short) {
+					
+		if (v < 12) {
+			str = s.split(',')[0] + '.' + ((parseInt(s.split(',')[1][1]) < 5) ? s.split(',')[1][0] : (parseInt(s.split(',')[1][0]) + 1)) + ' ' + suffix[v];
+		}
+		else {
+			str = '+999.9 Dc';
+		}
+	}
+	else {
+		if (v < 12) {
+			str = s;
+		}
+		else {
+			let r = Math.floor(Math.random() * (msg.length));
+			// if (r === msg.length) { r--; }
+			// str = msg[r];
+			str = msg[Math.min(r, msg.length - 1)] // xd
+		}
+	}
+	return str;
+}
+
+function setTokens(val) {
+	localStorage.setItem('tokens', val);
+	updateTokens();
 }
 
 let lastErrCode = 0;
@@ -157,7 +224,7 @@ async function reloadCodeforces(force) {
 
 	let u;
 	if (force) {
-		u = localStorage.getItem('user');
+		u = localStorage.getItem('user') || '';
 	}
 	else {
 		// get user input.
@@ -171,7 +238,6 @@ async function reloadCodeforces(force) {
 
 
 	// validate
-	let s = "hello";
 	let allowedChar = [
 		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
 		'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
@@ -179,7 +245,8 @@ async function reloadCodeforces(force) {
 		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
 		'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
 		'w', 'x', 'y', 'z',
-		'_', '-', '.'
+		'_', '-', '.',
+		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
 	];
 
 	for (char of u) {
@@ -217,3 +284,19 @@ async function reloadCodeforces(force) {
 
 reloadCodeforces(true);
 getTokens();
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', onLoad);
+
+function onLoad() {
+	document.getElementById('tokens').onmouseover = (e) => {
+		updateTokens(false);
+	}
+	document.getElementById('tokens').onmouseleave = (e) => {
+		updateTokens(true);
+	}
+}

@@ -128,6 +128,8 @@ body {
     padding-left: 12px;
 
     box-shadow: 0 0 64px 16px #94e2d522;
+
+    transition: width 0.25s ease;
 }
 
 .close-btn {
@@ -272,6 +274,8 @@ body {
 .account-card button img {
     height: 20px;
 }
+
+
 
 #flashcard {
 
