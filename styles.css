@@ -360,9 +360,9 @@ body {
     transition: max-height 0.3s ease-in-out;
 }
 
-#flashcard.loading {
-    /* max-height: 25rem; */
-}
+/* Flashcard smooth transition missing */
+/* #flashcard.loading {
+} */
 
 #top-bar {
     width: 50rem;
