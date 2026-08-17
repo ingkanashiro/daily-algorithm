@@ -1,64 +1,499 @@
-function getTodaySeed() {
-	const d = new Date();
-	const year = d.getUTCFullYear();
-	const month = String(d.getUTCMonth() + 1).padStart(2, '0');
-	const day = String(d.getUTCDate()).padStart(2, '0');
-	return parseInt(`${year}${month}${day}`, 10);
+function rand(seed) {
+	let state = (seed * 1664525 + 1013904223) % 4294967296;
+	return state / 4294967296;
 }
 
-function loadProblem(level, day = 0) {
+function toSeed(date) {
+	const [year, month, day] = date.split('-').map(Number);
+	return year * 10000 + month * 100 + day;
+}
 
-	// day: today=0, yesterday=-1, ..., up to -7.
+let day = new Date();
+let stoDelta = 0;
+let level = 0;
 
-	/*
-		COLORS FOR TAGS:
-			rating							green
+console.log('registered today as', stringify(day))
 
-			implementation					lavander
-			brute-force						maroon
-			greedy							yellow
-			constructive					lavander
-			interactive						lavander
-			
-			search							sky
-			pointers						red
-			divide-and-conquer				peach
-			meet-in-the-middle				peach
-			data-structures					yellow
-			dp (dyn-prog)					blue
-			dsu (disjoint-set-union)		blue
-			bitmasks						pink
-			
-			math							red
-			number-theory					blue
-			combinatorics					green
-			probabilities					peach
-			chinese-remainder-theorem		red
-			matrices						yellow
-			fft (fourier)					blue
-			
-			graphs							blue
-			trees							teal
-			df-similar						lavander
-			shortest-path					peach
-			flows							pink
-			graph-matchings					pink
-			2-sat							green
-			strings							green
-			hashing							yellow
-			string-suffix-structs			peach
-			sorting							blue
+function getDelta() {
+	return delta;
+}
 
-			geometry 						green
-			games							red
-			schedules						sapphire
-			parsing							lavander
-	*/
+function getTimer() {
+	const now = Date.now() % 86400000;
+	const dif = 86400000 - now;
 
+	const hrs = Math.floor((dif / (1000 * 60 * 60)) % 24);
+	const mins = Math.floor((dif / (1000 * 60)) % 60);
+	const secs = Math.floor((dif / 1000) % 60);
 
+	const fhh = String(hrs);
+	const fmm = String(mins).padStart(2, '0');
+	const fss = String(secs).padStart(2, '0');
+
+	if (hrs != 0) {
+		document.getElementById('timer').innerHTML = `resets in ${fhh}:${fmm}:${fss}`;
+	}
+	else {
+		document.getElementById('timer').innerHTML = `resets in ${fmm}:${fss}`;
+	}
+}
+
+getTimer();
+setInterval(getTimer, 1000);
+
+function stringify(date) {
+	let s = date.toUTCString().split(' '); // Wed, | 18 | Aug | 2026 | 20:16:00 | GMT
+	return (s[0] + ' ' + s[1] + ' ' + s[2]); 
 }
 
 
+function moveToDay(delta) {
+
+	const l = document.getElementById('day-selector-left');
+	const r = document.getElementById('day-selector-right');
+
+	if (delta < 0) {
+		r.disabled = false;
+	}
+	else if (delta > 0) {
+		l.disabled = false;
+	}
+
+	const today = new Date(); const current = new Date(); 
+	
+	current.setUTCDate(day.getUTCDate() + delta);
+	console.log('moved day pointer to ', stringify(current));
+	
+	let newDelta = current.getUTCDate() - today.getUTCDate();
+	
+	if (newDelta > 0) {
+		newDelta = 0;
+	}
+	else if (newDelta < -6) {
+		newDelta = -6;
+	}
+
+	// update labels and buttons
+	if (newDelta === 0) {
+		r.disabled = true;
+	}
+	else if (newDelta === -6) {
+		l.disabled = true;
+	} 
+
+	const label = document.getElementById('day-selector-label');
+	if (newDelta === 0) {
+		label.innerText = 'Today';
+	}
+	else if (newDelta === -1) {
+		label.innerText = 'Yesterday';
+	}
+	else {
+		label.innerText = stringify(current);
+	}
+
+	day.setUTCDate(current.getUTCDate());
+	stoDelta = newDelta;
+
+	loadProblem(level, newDelta);
+}
+
+async function loadProblem(level) {
+
+	for (e of document.getElementById('progress-bar').childNodes) {
+		e.className = '';
+	}
+
+	document.getElementById(`bar-${level}`).className = 'active-sec';
+
+	// set-up loading screen...
+	document.getElementById('flashcard').className = 'loading';
+
+	const response = await fetch('https://codeforces.com/api/problemset.problems');
+	if (!response.ok) {
+		console.error('Coudn\'t fetch problems. Error 404 not found.');
+		return;
+	}
+
+	const data = await response.json();
+
+	if (data.status != 'OK') {
+		console.error('Couldn\'t fetch problems. Codeforces returned ', data.status);
+		return;
+	}
+
+	const problemset = data.result.problems;
+
+	console.log('Problemset fetched:', problemset);
+	let min, max;
+
+	switch (level) {
+		case 0:
+			min = 800;
+			max = 1100;
+			break;
+		
+		case 1:
+			min = 1200;
+			max = 1700;
+			break;
+		
+		case 2:
+			min = 1800; // 500
+			max = 2900; // 750
+			break;
+		
+		case 3:
+			min = 3000;
+			max = 4000;
+			break;
+	}
+
+	const problemlist = problemset.filter(p => p.rating >= min && p.rating <= max && !p.tags.includes('*special'));
+	console.log(problemlist);
+
+	const day = new Date();
+	day.setUTCDate(day.getUTCDate() + stoDelta);
+
+	const dateStr = day.toISOString().split('T')[0];	
+	const seed = toSeed(dateStr);
+
+	console.log('seed:', seed);
+
+
+	const index = Math.floor(rand(seed) * problemlist.length);
+	console.log('proc:', rand(seed), index);
+	const problem = problemlist[index];
+
+	console.log('returned problem:', problem);
+
+	displayHeader(problem);
+	displayProblemTags(problem.tags);
+
+	await displayProblemInfo(problem);
+
+	let reward = 0;
+	switch (level) {
+		case 0:
+			reward = 50;
+			break;
+
+		case 1:
+			reward = 100;
+			break;
+
+		case 2:
+			reward = 50 * Math.floor(((problem.rating * 5 / 12) - 250) / 50);
+			break;
+			
+		case 3:
+			reward = 1500 + (50 * Math.floor((problem.rating - 3000)/50));
+			break;
+	}
+
+	document.getElementById('tokens-awarded').innerText = '+' + reward.toString();
+
+	
+	MathJax.typeset();
+	document.getElementById('flashcard').className = '';
+
+	// let h = (document.getElementById('flashcard').clientHeight).toString() + 'px';
+
+	// console.log('set height cap to ', h);
+	// document.documentElement.style.setProperty('--flashcard-dyn-height', h);
+}
+
+async function displayHeader(p) {
+
+	let title = p.index + '. ' + p.name;
+	let rating = p.rating;
+
+	document.getElementById('problem-name').innerText = title;
+	document.getElementById('problem-rating').innerText = rating;
+}
+
+async function displayProblemInfo(p) {
+
+	const code = p.contestId + '/' + p.index;
+	const url = `https://codeforces.ingkanashiro.workers.dev/${p.contestId}/${p.index}`;
+	let data;
+	
+	console.log('fetching data from ', url);
+	try {
+
+		const response = await fetch(url);
+		if (!response.ok) {
+			console.error('Couldn\'t scrape Codeforces problem. Provider failed to provide, returned ', response.status);
+			document.getElementById('problem').innerHTML = `
+				<span style="color: var(--mocha-text); font-style: italic;">Couldn't load problem properly. Please try again.</span>
+			`
+			return;
+		}
+
+		data = await response.json();
+
+	} catch (err) {
+		console.error('Couldn\'t scrape Codeforces problem. Error code:', err);
+		document.getElementById('problem').innerHTML = `
+			<span style="color: var(--mocha-text); font-style: italic;">An error ocurred (${err}).</span>
+		`
+		return;
+	}
+
+	console.log('fetched problem ', code, ':', data);
+
+	// description
+	document.getElementById('problem').innerHTML = await data.statementHtml;
+
+	// input / output
+	document.getElementById('problem-input').innerHTML = await data.inputSpecification;
+	document.getElementById('problem-output').innerHTML = await data.outputSpecification;
+
+	// limitations
+	let timeLimit = data.timeLimit.split(' ')[0];
+	let timeUnit;
+	switch (data.timeLimit.split(' ')[1]) {
+		case 'seconds':
+			timeUnit = 's';
+			break;
+
+		case 'milliseconds':
+			timeUnit = 'ms';
+			break;
+
+		case 'minutes':
+			timeUnit: 'min';
+			break;
+	}
+
+	let memLimit = data.memoryLimit.split(' ')[0];
+	let memUnit;
+	switch (data.memoryLimit.split(' ')[1]) {
+		case 'bytes':
+			memUnit = 'B';
+			break;
+		
+		case 'kilobytes':
+			memUnit = 'kB';
+			break;
+
+		case 'megabytes':
+			memUnit = 'MB';
+			break;
+
+		case 'gigabytes':
+			memUnit = 'GB';
+			break;
+	}
+
+	document.getElementById('time-limit').innerText = timeLimit + ' ' + timeUnit;
+	document.getElementById('mem-limit').innerText = memLimit + ' ' + memUnit;
+}
+
+async function displayProblemTags(tags) {
+
+	const e = document.getElementById('tags');
+	e.innerHTML = ``;
+
+	for (let i = 0; i < tags.length; i++) {
+
+		console.log(tags[i]);
+
+		let color = 'overlay-1';
+		let type = 'tag';
+		let name = tags[i];
+
+		switch (tags[i]) {
+
+			case 'implementation':
+				color = 'lavander';
+				type = 'implementation';
+				break;
+
+			case 'brute force':
+				color = 'maroon';
+				type = 'brute-force';
+				break;
+
+			case 'greedy':
+				color = 'yellow';
+				type = 'greedy';
+				break;
+
+			case 'constructive algorithms':
+				color = 'lavander';
+				type = 'constructive';
+				break;
+
+			case 'interactive':
+				color = 'lavander';
+				type = 'interactive';
+				break;
+
+			case 'binary search':
+				color = 'sky';
+				type = 'search';
+				break;
+
+			case 'trinary search':
+				color = 'sky';
+				type = 'search';
+				break;
+
+			case 'two pointers':
+				color = 'red';
+				type = 'pointers';
+				break;
+
+			case 'divide and conquer':
+				color = 'peach';
+				type = 'divide-and-conquer';
+				break;
+
+			case 'meet in the middle':
+				color = 'peach';
+				type = 'meet-in-the-middle';
+				break;
+
+			case 'data structures':
+				color = 'yellow';
+				type = 'data-structures';
+				break;
+
+			case 'dp':
+				color = 'blue';
+				type = 'dp';
+				break;
+
+			case 'dsu':
+				color = 'blue';
+				type = 'dsu';
+				break;
+
+			case 'bitmasks':
+				color = 'pink';
+				type = 'bitmasks';
+				break;
+
+			case 'math':
+				color = 'red';
+				type = 'math';
+				break;
+
+			case 'number theory':
+				color = 'teal';
+				type = 'number-theory';
+				break;
+
+			case 'combinatorics':
+				color = 'maroon',
+				type = 'combinatorics';
+				break;
+
+			case 'chinese remainder theorem':
+				color = 'red';
+				type = 'chinese-remainder-theorem';
+				break;
+
+			case 'matrices':
+				color = 'yellow';
+				type = 'matrices';
+				break;
+
+			case 'fft':
+				color = 'blue';
+				type = 'fft';
+				break;
+
+			case 'graphs':
+				color = 'blue';
+				type = 'graphs';
+				break;
+
+			case 'trees':
+				color = 'teal';
+				type = 'trees';
+				break;
+
+			case 'dfs and similar':
+				color = 'lavander';
+				type = 'dfs'
+				break;
+
+			case 'shortest paths':
+				color = 'peach';
+				type = 'shortest-path';
+				break;
+
+			case 'flows':
+				color = 'pink';
+				type = 'flows';
+				break;
+
+			case 'graph matchings':
+				color = 'pink';
+				type = 'graph-matchings';
+				break;
+
+			case '2-sat':
+				color = 'green';
+				type = '2-sat';
+				break;
+
+			case 'strings':
+				color = 'green';
+				type = 'strings';
+				break;
+
+			case 'hashing':
+				color = 'yellow';
+				type = 'hashing';
+				break;
+
+			case 'string suffix structures':
+				color = 'peach';
+				type = 'string-suffix-structs';
+				break;
+
+			case 'sortings':
+				color = 'blue';
+				type = 'sorting';
+				break;
+
+			case 'geometry':
+				color = 'green';
+				type = 'geometry';
+				break;
+
+			case 'games':
+				color = 'red';
+				type = 'games';
+				break;
+
+			case 'schedules':
+				color = 'sapphire';
+				type = 'schedules';
+				break;
+
+			case 'expression parsing':
+				color = 'lavander';
+				type = 'parsing';
+				break;
+
+			default:
+				break;
+		}
+		
+		let tag = `
+			<div style="--accent: var(--mocha-${color});">
+				<img src="assets/icons/tags/${type}.svg" style="height: 14px;">
+				<span>${name}</span>
+			</div>
+		`;	
+		
+		e.innerHTML += tag;
+	}
+}
 
 
 
@@ -364,3 +799,4 @@ async function reloadCodeforces(force) {
 
 reloadCodeforces(true);
 getTokens();
+loadProblem(level, 0);

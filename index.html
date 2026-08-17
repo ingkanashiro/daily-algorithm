@@ -6,6 +6,16 @@
         <title>Daily Algorithm</title>
         <link rel="stylesheet" href="lib/mocha.css">
         <link rel="stylesheet" href="styles.css">
+
+        <script defer>
+            window.MathJax = {
+                tex: {
+                    inlineMath: [['$$$', '$$$'], ['\\(', '\\)']],   // Inline math prefix/suffix pairs
+                    displayMath: [['###', '###'], ['\\[', '\\]']] // Block/display math prefix/suffix pairs
+                }
+            };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     </head>
 
     <body>
@@ -58,36 +68,71 @@
                 </div>
             </div>
 
-            <!-- problem chip -->
+            <!-- problem card -->
             <div id="flashcard" class="card">
 
-                <div id="day-selector" style="width: 100%">
-                    <span style="text-align: center; width: 100%;">
-                        Today
-                    </span>
+                <div id="top-bar">
+                    <div id="timer">resets in 0:00:00</div>
+                    <div id="day-selector">
+                        <button id="day-selector-left" onclick="moveToDay(-1)"><</button>
+                        <span id ="day-selector-label" style="text-align: center; width: 10rem;">
+                            Today
+                        </span>
+                        <button id="day-selector-right" onclick="moveToDay(1)" disabled>></button>
+                    </div>
+                    <div id="streak">
+                        <img src="assets/icons/streak/streak_off.svg" style="height: 18px;">
+                        <span id="streak-count">0</span>
+                    </div>
                 </div>
 
                 <div id="progress-bar">
-                    <div id="bar-e" class="o-inactive"></div>
-                    <div id="bar-m" class="o-yellow"></div>
-                    <div id="bar-h" class="o-inactive"></div>
-                    <div id="bar-x" class="o-inactive"></div>
+                    <button id="bar-0" onclick="loadProblem(0)" class="active-sec" style="--color: var(--mocha-blue); --blur: var(--mocha-blue-blur);"></button>
+                    <button id="bar-1" onclick="loadProblem(1)" style="--color: var(--mocha-yellow); --blur: var(--mocha-yellow-blur);"></button>
+                    <button id="bar-2" onclick="loadProblem(2)" style="--color: var(--mocha-peach); --blur: var(--mocha-peach-blur);" disabled></button>
+                    <button id="bar-3" onclick="loadProblem(3)" style="--color: var(--mocha-red); --blur: var(--mocha-red-blur);" disabled></button>
                 </div>
 
-                <div id="rating">
+                <div id="problem-header">
+                    <div id="problem-title">
+                        <span id="problem-name"></span>
+                        <div class="tag" style="--accent: var(--mocha-yellow);">
+                            <img src="assets/icons/tags/rating.svg" style="height: 14px;">
+                            <span id="problem-rating">800</span>
+                        </div>  
+                    </div>
 
+                    <div id="limitations-and-rewards">
+                        <div style="--weight: 500; --font: sans-serif; --color: var(--mocha-overlay-1);"><img style="height: 18px;" src="assets/icons/sub/time.svg"><span id="time-limit">5 s</span></div>
+                        <div style="--weight: 500; --font: sans-serif; --color: var(--mocha-overlay-1);"><img style="height: 18px;" src="assets/icons/sub/memory.svg"><span id="mem-limit">256 MB</span></div>
+                        <div style="--weight: 200; --font: monospace; --color: var(--mocha-teal); margin-left: 8px;"><span id="tokens-awarded">+50</span><img style="height: 18px;" src="assets/icons/token.svg"></div>
+                    </div>
                 </div>
 
                 <div id="problem">
-
                 </div>
                 
-                <div id="limitations-and-rewards">
-
+                <div id="problem-indications">
+                    <div class="indication-nest" id="problem-input"></div>
+                    <div class="indication-nest" id="problem-output"></div>
                 </div>
+                    
                 
-                <div id="actions">
+                
+                <div id="bottom-bar">
+                    <div id="tags">
+                    </div>
 
+                    <div id="actions">
+                        <button id="skip">
+                            <img src="assets/icons/skip.svg">
+                            <span>Skip</span>
+                        </button>
+                        <button id="check">
+                            <img src="assets/icons/check.svg">
+                            <span>Check</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 

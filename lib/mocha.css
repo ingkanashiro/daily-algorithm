@@ -28,6 +28,7 @@
     --mocha-sapphire-blur: #74c7ec22;
     --mocha-blue-blur: #89b4fa22;
     --mocha-lavander-blur: #b4befe22;
+    --mocha-white-blur: #cdd6f444;
 
     --mocha-text: #cdd6f4;
     --mocha-subtext-1: #bac2de;
@@ -36,6 +37,11 @@
     --mocha-overlay-2: #9399b2;
     --mocha-overlay-1: #7f849c;
     --mocha-overlay-0: #6c7086;
+
+    --mocha-overlay-2-blur: #9399b222;
+    --mocha-overlay-1-blur: #7f849c22;
+    --mocha-overlay-0-blur: #6c708622;
+
 
     --mocha-surface-2: #585b70;
     --mocha-surface-1: #45475a;
