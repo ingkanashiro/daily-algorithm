@@ -100,6 +100,9 @@
                             <img src="assets/icons/tags/rating.svg" style="height: 14px;">
                             <span id="problem-rating">800</span>
                         </div>  
+                        <a id="gotoproblem" target="blank" style="margin-top: 8px;">
+                            <img src="assets/icons/sub/gotopage.svg" style="height: 14px;">
+                        </a>
                     </div>
 
                     <div id="limitations-and-rewards">
@@ -113,10 +116,53 @@
                 </div>
                 
                 <div id="problem-indications">
-                    <div class="indication-nest" id="problem-input"></div>
-                    <div class="indication-nest" id="problem-output"></div>
+                    <div class="indication-nest" style="--max-h: var(--input-max-h)" id="problem-input"></div>
+                    <div class="indication-nest" style="--max-h: var(--output-max-h)" id="problem-output"></div>
                 </div>
-                    
+                
+                <button id="sample-btn" onclick="openSamples()">See examples</button>
+
+                <dialog id="samples">
+                    <div id="samples-nav">
+                        <div id="sample-list">
+
+                            <label class="sample-opt">
+                                <input type="radio" name="sample" value="1">
+                                <span>1</span>
+                            </label>
+
+                            <label class="sample-opt">
+                                <input type="radio" name="sample" value="1">
+                                <span>2</span>
+                            </label>
+
+                            <label class="sample-opt">
+                                <input type="radio" name="sample" value="1">
+                                <span>3</span>
+                            </label>
+
+                        </div>
+                        <button onclick="closeSamples()"><img src="assets/icons/sub/close-blue.svg" style="height: 18px;"></button>
+                    </div>
+                    <div id="input-output-sample-fields">
+                        <div id="sample-input">
+                            <span class="header-line">input</span>
+                            <div id="sample-input-codeblock" class="codeblock">
+                                <span class="num-line">1</span>
+                                <span class="io-line">hello</span>
+                                <span class="num-line">2</span>
+                                <span class="io-line">hi wiwiwi</span>
+                                <span class="num-line">3</span>
+                                <span class="io-line">wow</span>
+                            </div>
+                        </div>
+                        
+                        <div id="sample-output">
+                            <span class="header-line">output</span>
+                            <div id="sample-output-codeblock" class="codeblock"></div>
+                        </div>
+                    </div>
+                </dialog>
                 
                 
                 <div id="bottom-bar">

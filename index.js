@@ -197,11 +197,16 @@ async function loadProblem(level) {
 	MathJax.typeset();
 	document.getElementById('flashcard').className = '';
 
+	document.documentElement.style.setProperty('--input-max-h', document.getElementById('problem-input').scrollHeight.toString() + 'px');
+	document.documentElement.style.setProperty('--output-max-h', document.getElementById('problem-output').scrollHeight.toString() + 'px');
+
 	// let h = (document.getElementById('flashcard').clientHeight).toString() + 'px';
 
 	// console.log('set height cap to ', h);
 	// document.documentElement.style.setProperty('--flashcard-dyn-height', h);
 }
+
+let samples;
 
 async function displayHeader(p) {
 
@@ -248,46 +253,18 @@ async function displayProblemInfo(p) {
 	// input / output
 	document.getElementById('problem-input').innerHTML = await data.inputSpecification;
 	document.getElementById('problem-output').innerHTML = await data.outputSpecification;
+	document.getElementById('gotoproblem').href = await data.url;
+
+	// samples
+	samples = await data.samples;
+	loadProblemSampleOptions();
 
 	// limitations
 	let timeLimit = data.timeLimit.split(' ')[0];
-	let timeUnit;
-	switch (data.timeLimit.split(' ')[1]) {
-		case 'seconds':
-			timeUnit = 's';
-			break;
-
-		case 'milliseconds':
-			timeUnit = 'ms';
-			break;
-
-		case 'minutes':
-			timeUnit: 'min';
-			break;
-	}
-
 	let memLimit = data.memoryLimit.split(' ')[0];
-	let memUnit;
-	switch (data.memoryLimit.split(' ')[1]) {
-		case 'bytes':
-			memUnit = 'B';
-			break;
-		
-		case 'kilobytes':
-			memUnit = 'kB';
-			break;
 
-		case 'megabytes':
-			memUnit = 'MB';
-			break;
-
-		case 'gigabytes':
-			memUnit = 'GB';
-			break;
-	}
-
-	document.getElementById('time-limit').innerText = timeLimit + ' ' + timeUnit;
-	document.getElementById('mem-limit').innerText = memLimit + ' ' + memUnit;
+	document.getElementById('time-limit').innerText = timeLimit + ' s';
+	document.getElementById('mem-limit').innerText = memLimit + ' MB';
 }
 
 async function displayProblemTags(tags) {
@@ -495,7 +472,56 @@ async function displayProblemTags(tags) {
 	}
 }
 
+function loadProblemSampleOptions() {
+	const e = document.getElementById('sample-list');
+	e.innerHTML = ``;
 
+	for (let l = 0; l < samples.length; l++) {
+		e.innerHTML += `
+			<label class="sample-opt">
+				<input type="radio" name="sample" value="${l+1}" onchange="loadSample(this.value)" ${(l === 0) ? 'checked' : ''}>
+				<span>${l+1}</span>
+			</label>
+		`;
+	}
+}
+
+function openSamples() {
+	loadSample(1);
+	document.getElementById('samples').showModal();
+}
+
+function closeSamples() {
+	document.getElementById('samples').close();
+}
+
+function loadSample(i) {
+	console.log(samples[i-1]);
+	
+	let input = samples[i-1].input;
+	let output = samples[i-1].output;
+
+
+
+	let inputList = input.split('\n');
+	let outputList = output.split('\n');
+
+	document.getElementById('sample-input-codeblock').innerHTML = ``;
+	for (let ii = 0; ii < inputList.length; ii++) {
+		document.getElementById('sample-input-codeblock').innerHTML += `
+		<span class="num-line">${ii+1}</span>
+		<span class="io-line">${inputList[ii]}</span>
+		`;
+	}
+	
+	document.getElementById('sample-output-codeblock').innerHTML = ``;
+	for (let ii = 0; ii < outputList.length; ii++) {
+		document.getElementById('sample-output-codeblock').innerHTML += `
+			<span class="num-line">${ii+1}</span>
+			<span class="io-line">${outputList[ii]}</span>
+		`;
+	}
+}
 
 
 
