@@ -170,7 +170,7 @@
                     </div>
 
                     <div id="actions">
-                        <button id="skip">
+                        <button id="skip" class="btn-hidden" onclick="promptSkip()">
                             <img src="assets/icons/skip.svg">
                             <span>Skip</span>
                         </button>
@@ -178,9 +178,41 @@
                             <img src="assets/icons/check.svg">
                             <span>Check</span>
                         </button>
+                        <span id="outdated-msg" class="btn-hidden" style="color: var(--mocha-overlay-1); font-style: italic; font-family: monospace; text-align: right; width: 100%;">
+                            You can no longer solve this problem.
+                        </span>
                     </div>
                 </div>
             </div>
+
+            <dialog id="skip-prompt">
+                <div id="skip-nav">
+                    <span>Skip problems?</span>
+                    <button><img src="assets/icons/sub/close-red.svg" style="height: 18px;" onclick="closeSkip()"></button>
+                </div>
+
+                <div class="skip-desc">
+                    <span>The following problems go up in difficulty quickly! Skipping now will forfeit </span>
+                    <span id="forfeit-text" class="skip-token-forfeit">150 tokens</span><span>, which can be recovered if the </span>
+                    <span>hard level</span>
+                    <span>is completed.</span>
+                </div>
+                <div class="skip-desc">
+                    <span style="font-weight: 600;">Do you wish to proceed?</span>
+                </div>
+
+                <div id="skip-actions">
+                    <button id="skip-proceed" onclick="proceedSkip()">
+                        <div></div>
+                        <span>Bring me Thanos!</span>
+                        <div class="token-count-num">
+                            <span id="forfeit-amount">-150</span>
+                            <img class="token-r" style="height: 14px;" src="assets/icons/sub/token-black.svg">
+                        </div>
+                    </button>
+                    <button id="skip-cancel" onclick="closeSkip()">Nevermind...</button>
+                </div>
+            </dialog>
 
 
             <!-- cat at the bottom -->

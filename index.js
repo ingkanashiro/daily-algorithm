@@ -104,6 +104,9 @@ async function loadProblem(level) {
 		e.className = '';
 	}
 
+	document.getElementById('skip').disabled = false;
+
+
 	document.getElementById(`bar-${level}`).className = 'active-sec';
 
 	// set-up loading screen...
@@ -172,6 +175,7 @@ async function loadProblem(level) {
 
 	await displayProblemInfo(problem);
 
+	
 	let reward = 0;
 	switch (level) {
 		case 0:
@@ -199,6 +203,27 @@ async function loadProblem(level) {
 
 	document.documentElement.style.setProperty('--input-max-h', document.getElementById('problem-input').scrollHeight.toString() + 'px');
 	document.documentElement.style.setProperty('--output-max-h', document.getElementById('problem-output').scrollHeight.toString() + 'px');
+
+	if (stoDelta < 0) {
+		document.getElementById('skip').className = 'btn-hidden';
+		document.getElementById('check').className = 'btn-hidden';
+		document.getElementById('outdated-msg').className = '';
+	}
+	else {
+		document.getElementById('check').className = '';
+		document.getElementById('outdated-msg').className = 'btn-hidden';
+		
+		if (level < 2 && !solved[level]) {
+			document.getElementById('skip').className = '';
+		}
+		else {
+			document.getElementById('skip').className = 'btn-hidden';
+		}
+
+
+	}
+
+	
 
 	// let h = (document.getElementById('flashcard').clientHeight).toString() + 'px';
 
@@ -523,7 +548,57 @@ function loadSample(i) {
 	}
 }
 
+function canAfford(f) {
+	return (f <= parseInt(localStorage.getItem('tokens')));
+}
 
+let solved = [false, false, false, false];
+
+function _setCompletion(easy, medium, hard, extreme) {
+	solved = [easy, medium, hard, extreme];
+}
+
+function promptSkip() {
+
+	let f = 0;
+	if (!solved[0]) { f += 50; }
+	if (!solved[1]) { f += 100; }
+
+	document.getElementById('skip-proceed').disabled = !canAfford(f);
+
+
+	document.getElementById('forfeit-text').innerText = `${f} tokens`;
+	document.getElementById('forfeit-amount').innerText = `-${f}`;
+
+	document.getElementById('skip-prompt').showModal();
+}
+
+function closeSkip() {
+	document.getElementById('skip-prompt').close();
+}
+
+function proceedSkip() {
+
+	let f = 0;
+	if (!solved[0]) { f += 50; }
+	if (!solved[1]) { f += 100; }
+
+	if (!canAfford(f)) {
+		console.warn('price is not affordable, returned false.');
+		return;
+	}
+	else {
+
+		// TODO: complete substracting with strings
+		let newValue = parseInt(localStorage.getItem('tokens')) - f; 
+		setTokens(newValue.toString());
+
+		loadProblem(2);
+		document.getElementById('bar-2').disabled = false;
+	}
+
+	closeSkip();
+}
 
 // Account Badge functionality
 
