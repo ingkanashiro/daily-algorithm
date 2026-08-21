@@ -169,18 +169,31 @@
                     <div id="tags">
                     </div>
 
-                    <div id="actions">
-                        <button id="skip" class="btn-hidden" onclick="promptSkip()">
-                            <img src="assets/icons/skip.svg">
-                            <span>Skip</span>
-                        </button>
-                        <button id="check">
-                            <img src="assets/icons/check.svg">
-                            <span>Check</span>
-                        </button>
-                        <span id="outdated-msg" class="btn-hidden" style="color: var(--mocha-overlay-1); font-style: italic; font-family: monospace; text-align: right; width: 100%;">
-                            You can no longer solve this problem.
-                        </span>
+                    <div>
+                        <div id="submit-rep">
+                            <img src="assets/icons/sub/submit-warn.svg" style="height: 14px;">
+                            <span id="sr-status" class="warn">FAILED:</span> <span id="sr-desc" class="warn">Time limit exceeded.</span>
+                        </div>
+
+                        <div id="actions">
+                            <button id="skip" class="btn-hidden" onclick="promptSkip()">
+                                <img src="assets/icons/skip.svg">
+                                <span>Skip</span>
+                            </button>
+                            <button id="check" onclick="checkProblemStatus(true)">
+                                <img src="assets/icons/check.svg">
+                                <span>Check</span>
+                            </button>
+                            <span id="outdated-msg" class="btn-hidden" style="color: var(--mocha-overlay-1); font-size: 10px; font-style: italic; font-family: monospace; text-align: right; width: 100%; align-self: flex-end;">
+                                This problem doesn't accept solutions anymore.
+                            </span>
+                            <span id="skipped-msg" class="btn-hidden" style="color: var(--mocha-overlay-1); font-size: 10px; font-style: italic; font-family: monospace; text-align: right; width: 100%; align-self: flex-end;">
+                                Problem skipped.
+                            </span>
+                            <span id="solved-msg" class="btn-hidden" style="color: var(--mocha-green); font-size: 10px; font-style: italic; font-family: monospace; text-align: right; width: 100%; align-self: flex-end;">
+                                Problem solved.
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

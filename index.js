@@ -95,10 +95,20 @@ function moveToDay(delta) {
 	day.setUTCDate(current.getUTCDate());
 	stoDelta = newDelta;
 
+	// get unlocked levels for today
+	if (newDelta === 0) {
+		document.getElementById('bar-2').disabled = !solved[1];
+		document.getElementById('bar-3').disabled = !solved[2];
+	}
+	else {
+		document.getElementById('bar-2').disabled = false;
+		document.getElementById('bar-3').disabled = false;
+	}
+
 	loadProblem(level, newDelta);
 }
 
-async function loadProblem(level) {
+async function loadProblem(lvl) {
 
 	for (e of document.getElementById('progress-bar').childNodes) {
 		e.className = '';
@@ -107,7 +117,7 @@ async function loadProblem(level) {
 	document.getElementById('skip').disabled = false;
 
 
-	document.getElementById(`bar-${level}`).className = 'active-sec';
+	document.getElementById(`bar-${lvl}`).className = 'active-sec';
 
 	// set-up loading screen...
 	document.getElementById('flashcard').className = 'loading';
@@ -130,7 +140,7 @@ async function loadProblem(level) {
 	console.log('Problemset fetched:', problemset);
 	let min, max;
 
-	switch (level) {
+	switch (lvl) {
 		case 0:
 			min = 800;
 			max = 1100;
@@ -177,7 +187,7 @@ async function loadProblem(level) {
 
 	
 	let reward = 0;
-	switch (level) {
+	switch (lvl) {
 		case 0:
 			reward = 50;
 			break;
@@ -208,27 +218,54 @@ async function loadProblem(level) {
 		document.getElementById('skip').className = 'btn-hidden';
 		document.getElementById('check').className = 'btn-hidden';
 		document.getElementById('outdated-msg').className = '';
+		document.getElementById('skipped-msg').className = 'btn-hidden';
+		document.getElementById('solved-msg').className = 'btn-hidden';
 	}
 	else {
 		document.getElementById('check').className = '';
 		document.getElementById('outdated-msg').className = 'btn-hidden';
 		
-		if (level < 2 && !solved[level]) {
-			document.getElementById('skip').className = '';
+		if (lvl < 2) {
+			
+			if (skipped[lvl]) {
+				document.getElementById('skip').className = 'btn-hidden';
+				document.getElementById('check').className = 'btn-hidden';
+				
+				document.getElementById('skipped-msg').className = '';
+				document.getElementById('solved-msg').className = 'btn-hidden';
+			}
+			else if (solved[lvl]) {
+				document.getElementById('skip').className = 'btn-hidden';
+				document.getElementById('check').className = 'btn-hidden';
+				
+				document.getElementById('skipped-msg').className = 'btn-hidden';
+				document.getElementById('solved-msg').className = '';
+			}
+			else {
+				document.getElementById('skip').className = '';
+				document.getElementById('check').className = '';
+				
+				document.getElementById('skipped-msg').className = 'btn-hidden';
+				document.getElementById('solved-msg').className = 'btn-hidden';
+			}
 		}
 		else {
 			document.getElementById('skip').className = 'btn-hidden';
+			document.getElementById('solved-msg').className = (solved[lvl] ? '' : 'btn-hidden');
 		}
-
-
 	}
 
-	
+	document.getElementById('submit-rep').innerHTML = ``;
+
+	localStorage.setItem('contestId', parseInt(problem.contestId));
+	localStorage.setItem('index', problem.index);
 
 	// let h = (document.getElementById('flashcard').clientHeight).toString() + 'px';
 
 	// console.log('set height cap to ', h);
 	// document.documentElement.style.setProperty('--flashcard-dyn-height', h);
+
+	level = lvl;
 }
 
 let samples;
@@ -553,6 +590,7 @@ function canAfford(f) {
 }
 
 let solved = [false, false, false, false];
+let skipped = [false, false];
 
 function _setCompletion(easy, medium, hard, extreme) {
 	solved = [easy, medium, hard, extreme];
@@ -596,6 +634,12 @@ function proceedSkip() {
 		loadProblem(2);
 		document.getElementById('bar-2').disabled = false;
 	}
+
+	skipped[0] = !solved[0];
+	skipped[1] = !solved[1];
+
+	localStorage.setItem('skips', skipped);
+	localStorage.setItem('solves', solved);
 
 	closeSkip();
 }
@@ -896,6 +940,192 @@ async function reloadCodeforces(force) {
 		setAccountStatus(3);
 	}
 
+}
+
+async function checkProblemStatus(__forceConfirm) {
+
+	document.getElementById('check').disabled = true;
+
+	const report = await (await fetch(`https://codeforces.com/api/user.status?handle=${localStorage.getItem('user')}&from=1&count=100`)).json();
+	
+	if (report.status != 'OK') {
+		console.error('Report returned ', report.status);
+		return;
+	}
+
+	const submissions = await report.result;
+	console.log(submissions);
+
+	const contestId = localStorage.getItem('contestId');
+	const index = localStorage.getItem('index');
+
+	console.log('searching:', contestId, '/', index);
+
+	const v = submissions.filter(p => (p.contestId === contestId && p.problem.index === index));
+	console.log(v);
+
+	if (__forceConfirm) {
+		let status = 'OK:';
+		let desc = 'Confirm was forced.';
+		let type = 0;
+
+		document.getElementById('submit-rep').innerHTML = `
+			<img src="assets/icons/sub/submit-accepted.svg" style="height: 14px;">
+			<span id="sr-status" class="success">${status}</span> <span id="sr-desc" class="success">${desc}</span>
+		`;
+
+		solved[level] = true;
+		document.getElementById(`bar-${level + 1}`).disabled = false;
+
+		document.getElementById('check').className = 'btn-hidden';
+		document.getElementById('skip').className = 'btn-hidden';
+
+		document.getElementById('check').disabled = false;
+
+		loadProblem(level);
+		return;
+	}
+
+	if (v.length < 1) {
+		console.warn('Report couldn\'t find any relevant submissions.');
+
+		document.getElementById('submit-rep').innerHTML = `
+			<img src="assets/icons/sub/submit-warn.svg" style="height: 14px;">
+			<span id="sr-status" class="warn">FAILED:</span> <span id="sr-desc" class="warn">Couldn't find any relevant submissions.</span>
+		`;
+
+		document.getElementById('check').disabled = false;
+
+		return;
+	}	
+	else {
+		let status, desc, type;
+
+		switch (v[0].verdict) {
+
+			case 'OK':
+				status = 'OK:';
+				desc = 'All tests passed.'
+				type = 0;
+				break;
+
+			case 'WRONG_ANSWER':
+				status = 'FAILED:';
+				desc = 'Wrong answer submitted.';
+				type = 1;
+				break;
+
+			case 'TIME_LIMIT_EXCEEDED':
+				status = 'FAILED:';
+				desc = 'Time limit exceeded.';
+				type = 1;
+				break;
+
+			case 'MEMORY_LIMIT_EXCEEDED':
+				status = 'FAILED:';
+				desc = 'Memory limit exceeded.';
+				type = 1;
+				break;
+
+			case 'RUNTIME_ERROR':
+				status = 'FAILED:';
+				desc = 'Runtime error.';
+				type = 2;
+				break;
+
+			case 'COMPILATION_ERROR':
+				status = 'FAILED:';
+				desc = 'Compilation error.';
+				type = 2;
+				break;
+
+			case 'TESTING':
+				status = 'WAITING:';
+				desc = 'Submission is currently on tests.';
+				type = 3;
+				break;
+
+			case 'SUBMITTED':
+				status = 'WAITING:';
+				desc = 'Submission recieved.';
+				type = 3;
+				break;
+
+			case 'IDLENESS_LIMIT_EXCEEDED':
+				status = 'FAILED:';
+				desc = 'Output took too long.';
+				type = 1;
+				break;
+
+			case 'SECURITY_VIOLATED':
+				status = 'FAILED:';
+				desc = 'Illegal command requested.';
+				type = 2;
+				break;
+
+			case 'PARTIAL':
+				status = 'OK:';
+				desc = 'Partial credit.';
+				type = 0;
+				break;
+
+			default:
+				status = 'WHAT:';
+				desc = 'Something weird happened.';
+				type = 4;
+				break;
+		}
+
+		switch (type) {
+			case 0:
+				document.getElementById('submit-rep').innerHTML = `
+					<img src="assets/icons/sub/submit-accepted.svg" style="height: 14px;">
+					<span id="sr-status" class="success">${status}</span> <span id="sr-desc" class="success">${desc}</span>
+				`;
+
+				solved[level] = true;
+				document.getElementById(`bar-${level + 1}`).disabled = false;
+
+				document.getElementById('check').className = 'btn-hidden';
+				document.getElementById('skip').className = 'btn-hidden';
+
+				document.getElementById('check').disabled = false;
+
+				break;
+
+			case 1:
+				document.getElementById('submit-rep').innerHTML = `
+					<img src="assets/icons/sub/submit-warn.svg" style="height: 14px;">
+					<span id="sr-status" class="warn">${status}</span> <span id="sr-desc" class="warn">${desc}</span>
+				`;
+
+				document.getElementById('check').disabled = false;
+				break;
+				
+				case 2:
+					document.getElementById('submit-rep').innerHTML = `
+					<img src="assets/icons/sub/submit-error.svg" style="height: 14px;">
+					<span id="sr-status" class="danger">${status}</span> <span id="sr-desc" class="danger">${desc}</span>
+				`;
+
+				document.getElementById('check').disabled = false;
+				break;
+
+			case 3:
+				document.getElementById('submit-rep').innerHTML = `
+					<img src="assets/icons/sub/submit-info.svg" style="height: 14px;">
+					<span id="sr-status" class="info">${status}</span> <span id="sr-desc" class="info">${desc}</span>
+				`;
+
+				document.getElementById('check').disabled = false;
+				break;
+		}
+	}
+	
+	localStorage.setItem('skips', skipped);
+	localStorage.setItem('solves', solved);
+
+	return await submissions.id;
 }
 
 reloadCodeforces(true);

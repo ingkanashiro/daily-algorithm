@@ -488,6 +488,25 @@ button:disabled {
     overflow: hidden;
 }
 
+#problem center {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+    color: var(--mocha-mauve);
+}
+
+#problem center img {
+    max-height: 15rem !important;
+    max-width: min-content !important;
+
+    width: auto !important;
+    height: auto !important;
+}
+
 #problem a {
     color: var(--mocha-blue);
     font-family: sans-serif;
@@ -698,6 +717,48 @@ button:disabled {
 }
 
 
+#submit-rep {
+    display: flex;
+
+    min-height: 0.3rem;
+
+    justify-content: flex-end;
+    align-items: center;
+
+    gap: 4px;
+
+    font-family: monospace;
+    font-size: 10px;
+
+    /* margin-bottom: 8px; */
+}
+
+#submit-rep #sr-status {
+    font-weight: 700;
+}
+
+#submit-rep #sr-desc {
+    font-weight: 300;
+}
+
+
+#submit-rep .success {
+    color: var(--mocha-green);
+}
+
+#submit-rep .warn {
+    color: var(--mocha-peach);
+}
+
+#submit-rep .error {
+    color: var(--mocha-red);
+}
+
+#submit-rep .info {
+    color: var(--mocha-blue);
+}
+
+
 #skip-prompt {
 
     flex-direction: column;
@@ -870,6 +931,8 @@ button:disabled {
     align-content: stretch;
 
     gap: 8px;
+
+    margin-top: 8px;
 }
 
 #actions button {
@@ -903,13 +966,21 @@ button:disabled {
 #check {
     background-color: var(--mocha-green);
     color: var(--mocha-crust);
-    border: none;
+    border: 1px solid var(--mocha-green);
 
     transition: all 0.5s ease-in-out;
 }
 
 #check:hover {
     background-color: var(--mocha-text);
+    border: 1px solid var(--mocha-text);
+}
+
+#check:disabled {
+    border: 1px dashed var(--mocha-overlay-1);
+    color: var(--mocha-overlay-1);
+
+    background-color: transparent;
 }
 
 #tags {
