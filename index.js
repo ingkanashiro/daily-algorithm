@@ -938,7 +938,10 @@ async function checkProblemStatus(__forceConfirm) {
 	const contestId = localStorage.getItem('contestId');
 	const index = localStorage.getItem('index');
 
-	const v = submissions.filter(p => (p.contestId === contestId && p.problem.index === index));
+	console.log('latest:', submissions);
+	console.log('searching submissions for', `${contestId}/${index}`)
+
+	const v = submissions.filter(p => (p.contestId == contestId && p.problem.index == index));
 
 	if (__forceConfirm) {
 		let status = 'OK:';
