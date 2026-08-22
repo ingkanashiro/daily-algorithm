@@ -1,4 +1,4 @@
-const version = "v1.0.2026.08.22";
+const version = "v1.0.2026.08.22.3";
 console.log('running version', version);
 
 function rand(seed) {
@@ -726,6 +726,8 @@ function getTokens() {
 
 	localStorage.setItem('tokens', tokens);
 	updateTokens();
+
+	return tokens;
 }
 
 function updateTokens() {
@@ -1078,6 +1080,10 @@ async function checkProblemStatus(__forceConfirm) {
 				document.getElementById('check').disabled = false;
 
 				incrementStreak();
+
+				console.log(parseInt(document.getElementById('tokens-awarded').innerText));
+				setTokens(parseInt(getTokens()) + parseInt(document.getElementById('tokens-awarded').innerText));
+
 				loadProblem(level);
 				break;
 
@@ -1090,7 +1096,7 @@ async function checkProblemStatus(__forceConfirm) {
 				document.getElementById('check').disabled = false;
 				break;
 				
-				case 2:
+			case 2:
 					document.getElementById('submit-rep').innerHTML = `
 					<img src="assets/icons/sub/submit-error.svg" style="height: 14px;">
 					<span id="sr-status" class="danger">${status}</span> <span id="sr-desc" class="danger">${desc}</span>
@@ -1110,11 +1116,13 @@ async function checkProblemStatus(__forceConfirm) {
 		}
 
 		console.log('check returned ', status, ' (', desc, ')');
-	}
-	
-	localStorage.setItem('skips', skipped);
-	localStorage.setItem('solves', solved);
+		
+		console.log(skipped);
+		console.log(solved);
 
+		localStorage.setItem('skipped', skipped.map(b => (b ? '1' : '0')).join(''));
+		localStorage.setItem('solved', skipped.map(b => (b ? '1' : '0')).join(''));
+	}
 
 	return await submissions.id;
 }
@@ -1207,8 +1215,30 @@ function updateStreakVisuals() {
 	}
 }
 
+function getSkipsAndSolves() {
+
+	if (!isBefore(new Date(JSON.parse(localStorage.getItem('lastSession')).time), 0)) {
+		// console.log('a', localStorage.getItem('skipped'));
+
+		skipped = localStorage.getItem('skipped').split('').map(c => (c == '1')) ?? '00';
+		solved = localStorage.getItem('solved').split('').map(c => (c == '1')) ?? '0000';
+	}
+	else {
+		skipped = [0, 0, 0, 0];
+		solved = [0, 0, 0, 0];
+
+		localStorage.setItem('skipped', '00');
+		localStorage.setItem('solved', '0000');
+	}
+
+	console.log('skips:', skipped);
+	console.log('solves:', solved);
+}
+
 reloadCodeforces(true);
 getTokens();
 
 reviseStreak();
+getSkipsAndSolves();
+
 loadProblem(level, 0);
