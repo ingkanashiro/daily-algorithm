@@ -1,4 +1,4 @@
-const version = "v1.0.2026.08.22.3";
+const version = "v1.0.2026.08.22.4";
 console.log('running version', version);
 
 function rand(seed) {
@@ -1220,8 +1220,8 @@ function getSkipsAndSolves() {
 	if (!isBefore(new Date(JSON.parse(localStorage.getItem('lastSession')).time), 0)) {
 		// console.log('a', localStorage.getItem('skipped'));
 
-		skipped = localStorage.getItem('skipped').split('').map(c => (c == '1')) ?? '00';
-		solved = localStorage.getItem('solved').split('').map(c => (c == '1')) ?? '0000';
+		skipped = (localStorage.getItem('skipped') ?? '00').split('').map(c => (c == '1'));
+		solved = (localStorage.getItem('solved') ?? '0000').split('').map(c => (c == '1'));
 	}
 	else {
 		skipped = [0, 0, 0, 0];
