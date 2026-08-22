@@ -1,3 +1,6 @@
+const version = "v1.0.2026.08.22";
+console.log('running version', version);
+
 function rand(seed) {
 	let state = (seed * 1664525 + 1013904223) % 4294967296;
 	return state / 4294967296;
