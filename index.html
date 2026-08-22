@@ -81,8 +81,8 @@
                         <button id="day-selector-right" onclick="moveToDay(1)" disabled>></button>
                     </div>
                     <div id="streak">
-                        <img src="assets/icons/streak/streak_off.svg" style="height: 18px;">
-                        <span id="streak-count">0</span>
+                        <img id="streak-icon" src="assets/icons/streak/streak_off.svg" style="height: 18px;">
+                        <span id="streak-count" class="text-streak-off">0</span>
                     </div>
                 </div>
 
@@ -180,7 +180,7 @@
                                 <img src="assets/icons/skip.svg">
                                 <span>Skip</span>
                             </button>
-                            <button id="check" onclick="checkProblemStatus(true)">
+                            <button id="check" onclick="checkProblemStatus(false)">
                                 <img src="assets/icons/check.svg">
                                 <span>Check</span>
                             </button>

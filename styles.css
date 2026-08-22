@@ -126,7 +126,7 @@ button:disabled {
 #account span {
     color: var(--account-badge-accent);
     font-style: normal;
-    font-weight: 200;
+    font-weight: 400;
 }
 
 #tokens {
@@ -431,7 +431,17 @@ button:disabled {
 
 #streak-count {
     font-family: monospace;
+    transition: all 0.2s ease-out;
+}
+
+.text-streak-on {
+    color: var(--mocha-peach);
+    font-weight: 700;
+}
+
+.text-streak-off {
     color: var(--mocha-overlay-2);
+    font-weight: 500;
 }
 
 #problem-header {

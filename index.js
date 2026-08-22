@@ -12,8 +12,6 @@ let day = new Date();
 let stoDelta = 0;
 let level = 0;
 
-console.log('registered today as', stringify(day))
-
 function getDelta() {
 	return delta;
 }
@@ -36,6 +34,8 @@ function getTimer() {
 	else {
 		document.getElementById('timer').innerHTML = `resets in ${fmm}:${fss}`;
 	}
+
+	return dif;
 }
 
 getTimer();
@@ -62,7 +62,6 @@ function moveToDay(delta) {
 	const today = new Date(); const current = new Date(); 
 	
 	current.setUTCDate(day.getUTCDate() + delta);
-	console.log('moved day pointer to ', stringify(current));
 	
 	let newDelta = current.getUTCDate() - today.getUTCDate();
 	
@@ -137,7 +136,6 @@ async function loadProblem(lvl) {
 
 	const problemset = data.result.problems;
 
-	console.log('Problemset fetched:', problemset);
 	let min, max;
 
 	switch (lvl) {
@@ -163,7 +161,6 @@ async function loadProblem(lvl) {
 	}
 
 	const problemlist = problemset.filter(p => p.rating >= min && p.rating <= max && !p.tags.includes('*special'));
-	console.log(problemlist);
 
 	const day = new Date();
 	day.setUTCDate(day.getUTCDate() + stoDelta);
@@ -171,11 +168,7 @@ async function loadProblem(lvl) {
 	const dateStr = day.toISOString().split('T')[0];	
 	const seed = toSeed(dateStr);
 
-	console.log('seed:', seed);
-
-
 	const index = Math.floor(rand(seed) * problemlist.length);
-	console.log('proc:', rand(seed), index);
 	const problem = problemlist[index];
 
 	console.log('returned problem:', problem);
@@ -285,7 +278,6 @@ async function displayProblemInfo(p) {
 	const url = `https://codeforces.ingkanashiro.workers.dev/${p.contestId}/${p.index}`;
 	let data;
 	
-	console.log('fetching data from ', url);
 	try {
 
 		const response = await fetch(url);
@@ -306,8 +298,6 @@ async function displayProblemInfo(p) {
 		`
 		return;
 	}
-
-	console.log('fetched problem ', code, ':', data);
 
 	// description
 	document.getElementById('problem').innerHTML = await data.statementHtml;
@@ -335,8 +325,6 @@ async function displayProblemTags(tags) {
 	e.innerHTML = ``;
 
 	for (let i = 0; i < tags.length; i++) {
-
-		console.log(tags[i]);
 
 		let color = 'overlay-1';
 		let type = 'tag';
@@ -558,12 +546,9 @@ function closeSamples() {
 }
 
 function loadSample(i) {
-	console.log(samples[i-1]);
-	
+
 	let input = samples[i-1].input;
 	let output = samples[i-1].output;
-
-
 
 	let inputList = input.split('\n');
 	let outputList = output.split('\n');
@@ -772,9 +757,6 @@ function parseTokenCount(val, short) {
 	let s = formatNumber(val); // '12,345,678,912,345,678'
 	let v = s.split(',').length - 1;
 
-	console.log("s:", s);
-	console.log("v:", v);
-
 	if (short && val.length > 5) {
 					
 		if (v < 12) {
@@ -802,8 +784,6 @@ function parseTokenCount(val, short) {
 		let w = (str.length * adjust) + 1.125;
 
 		document.documentElement.style.setProperty('--token-initial-width', w.toString() + 'rem');
-
-		console.log('set max-width to ', w);
 	}
 
 	return str;
@@ -954,15 +934,11 @@ async function checkProblemStatus(__forceConfirm) {
 	}
 
 	const submissions = await report.result;
-	console.log(submissions);
 
 	const contestId = localStorage.getItem('contestId');
 	const index = localStorage.getItem('index');
 
-	console.log('searching:', contestId, '/', index);
-
 	const v = submissions.filter(p => (p.contestId === contestId && p.problem.index === index));
-	console.log(v);
 
 	if (__forceConfirm) {
 		let status = 'OK:';
@@ -974,7 +950,6 @@ async function checkProblemStatus(__forceConfirm) {
 			<span id="sr-status" class="success">${status}</span> <span id="sr-desc" class="success">${desc}</span>
 		`;
 
-		solved[level] = true;
 		document.getElementById(`bar-${level + 1}`).disabled = false;
 
 		document.getElementById('check').className = 'btn-hidden';
@@ -983,6 +958,11 @@ async function checkProblemStatus(__forceConfirm) {
 		document.getElementById('check').disabled = false;
 
 		loadProblem(level);
+		incrementStreak();
+
+		solved[level] = true;
+
+		console.log('check returned ', status, ' (', desc, ')');
 		return;
 	}
 
@@ -1091,6 +1071,8 @@ async function checkProblemStatus(__forceConfirm) {
 
 				document.getElementById('check').disabled = false;
 
+				incrementStreak();
+				loadProblem(level);
 				break;
 
 			case 1:
@@ -1120,14 +1102,107 @@ async function checkProblemStatus(__forceConfirm) {
 				document.getElementById('check').disabled = false;
 				break;
 		}
+
+		console.log('check returned ', status, ' (', desc, ')');
 	}
 	
 	localStorage.setItem('skips', skipped);
 	localStorage.setItem('solves', solved);
 
+
 	return await submissions.id;
+}
+
+function __setSession(streak, solved) {
+	localStorage.setItem('lastSession', JSON.stringify({
+		time: new Date(),
+		streak: streak,
+		solved: solved
+	}))
+
+	updateStreakVisuals();
+}
+
+function incrementStreak() {
+
+	let newSession = {
+		time: new Date(),
+		streak: JSON.parse(localStorage.getItem('lastSession')).streak,
+		solved: true
+	};
+
+	if (!(JSON.parse(localStorage.getItem('lastSession')).solved)) {
+		newSession.streak++;
+	}
+
+	localStorage.setItem('lastSession', JSON.stringify(newSession));
+
+	updateStreakVisuals();
+}
+
+function isBefore(timestamp, from) {
+
+	const fromRef = new Date();
+	fromRef.setUTCDate(fromRef.getUTCDate() + from);
+
+	timestamp.setUTCHours(0, 0, 0, 0);
+
+	return (timestamp < from);
+}
+
+function reviseStreak() {
+
+	let lastSession = JSON.parse(localStorage.getItem('lastSession'));
+	console.log('last session:', lastSession);
+
+	let newSession = {
+		time: new Date(),
+		streak: null,
+		solved: null
+	}
+
+	if (lastSession === null || isBefore(new Date(lastSession.time), -1) || (!lastSession.solved && isBefore(new Date(lastSession.time), 0))) {
+		newSession.streak = 0;
+		newSession.solved = false;
+	}
+	else {
+		newSession.streak = lastSession.streak;
+		newSession.solved = lastSession.solved;
+	}
+
+	localStorage.setItem('lastSession', JSON.stringify(newSession));
+	updateStreakVisuals();
+}
+
+function updateStreakVisuals() {
+
+	const icon = document.getElementById('streak-icon');
+	const count = document.getElementById('streak-count');
+
+	let thisSession = JSON.parse(localStorage.getItem('lastSession'));
+	console.log('session: ', thisSession);
+
+	count.innerText = thisSession.streak;
+
+	if (thisSession.solved) {
+		count.className = 'text-streak-on';
+		icon.src = 'assets/icons/streak/streak_on.svg';
+	}
+	else {
+		count.className = 'text-streak-off';
+		let timeLeft = getTimer();
+
+		if (timeLeft < 3600) {
+			icon.src = 'assets/icons/streak/streak_warn.svg';
+		}
+		else {
+			icon.src = 'assets/icons/streak/streak_off.svg';
+		}	
+	}
 }
 
 reloadCodeforces(true);
 getTokens();
+
+reviseStreak();
 loadProblem(level, 0);
